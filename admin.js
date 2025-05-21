@@ -8,6 +8,17 @@ import {
   browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
 // Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAuoq02wVr0d93hXnLJar4DgJ_Rt1BjZMI",
@@ -23,6 +34,7 @@ const ADMIN_EMAIL = "reymarcascara@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 signOut(auth).catch(() => {});
 setPersistence(auth, browserSessionPersistence);
@@ -80,31 +92,36 @@ logoutBtn.addEventListener("click", () => {
   });
 });
 
-function loadListings() {
-  const listings = JSON.parse(localStorage.getItem("listings") || "[]");
+async function loadListings() {
   listingsTable.innerHTML = "";
 
-  listings.forEach(listing => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${listing.title}</td>
-      <td>${listing.location}</td>
-      <td>₱${listing.price.toLocaleString()}</td>
-      <td>${listing.size} sqm</td>
-      <td>
-        <button class="action-btn edit-btn" data-id="${listing.id}">Edit</button>
-        <button class="action-btn delete-btn" data-id="${listing.id}">Delete</button>
-      </td>
-    `;
-    listingsTable.appendChild(row);
-  });
+  try {
+    const querySnapshot = await getDocs(collection(db, "listings"));
+    querySnapshot.forEach(docSnap => {
+      const listing = docSnap.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${listing.title}</td>
+        <td>${listing.location}</td>
+        <td>₱${listing.price.toLocaleString()}</td>
+        <td>${listing.size} sqm</td>
+        <td>
+          <button class="action-btn edit-btn" data-id="${docSnap.id}">Edit</button>
+          <button class="action-btn delete-btn" data-id="${docSnap.id}">Delete</button>
+        </td>
+      `;
+      listingsTable.appendChild(row);
+    });
 
-  document.querySelectorAll(".edit-btn").forEach(btn => {
-    btn.addEventListener("click", () => editListing(btn.dataset.id));
-  });
-  document.querySelectorAll(".delete-btn").forEach(btn => {
-    btn.addEventListener("click", () => deleteListing(btn.dataset.id));
-  });
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+      btn.addEventListener("click", () => editListing(btn.dataset.id));
+    });
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => deleteListing(btn.dataset.id));
+    });
+  } catch (err) {
+    console.error("Failed to load listings:", err.message);
+  }
 }
 
 async function uploadImages(files, listingId) {
@@ -137,12 +154,15 @@ async function saveListing(e) {
   e.preventDefault();
   formMessage.style.display = "none";
 
-  const listingId = document.getElementById("listingId").value || Date.now().toString();
+  const listingIdInput = document.getElementById("listingId").value;
+  const isEditing = listingIdInput !== "";
+  const listingId = listingIdInput || Date.now().toString();
+
   const title = document.getElementById("title").value;
   const description = document.getElementById("description").value;
   const price = parseInt(document.getElementById("price").value);
   const size = parseInt(document.getElementById("size").value);
-  const location = document.getElementById("listingLocation").value; // Updated to match HTML
+  const location = document.getElementById("listingLocation").value;
   const imageFiles = document.getElementById("images").files;
 
   try {
@@ -151,34 +171,31 @@ async function saveListing(e) {
       imageUrls = await uploadImages(imageFiles, listingId);
     }
 
-    const listings = JSON.parse(localStorage.getItem("listings") || "[]");
-    const existingListing = listings.find(l => l.id === listingId);
-    const newListing = {
-      id: listingId,
+    const listingData = {
       title,
       description,
       price,
       size,
       location,
-      images: imageFiles.length > 0 ? imageUrls : existingListing ? existingListing.images : []
+      images: imageUrls,
+      createdAt: Date.now()
     };
 
-    if (listingId && existingListing) {
-      const index = listings.findIndex(l => l.id === listingId);
-      listings[index] = newListing;
+    if (isEditing) {
+      const docRef = doc(db, "listings", listingId);
+      await updateDoc(docRef, listingData);
       formMessage.textContent = "Listing updated successfully!";
     } else {
-      listings.push(newListing);
+      const docRef = await addDoc(collection(db, "listings"), listingData);
       formMessage.textContent = "Listing added successfully!";
     }
 
-    localStorage.setItem("listings", JSON.stringify(listings));
     listingForm.reset();
     document.getElementById("listingId").value = "";
     formMessage.classList.remove("error");
     formMessage.classList.add("success");
     formMessage.style.display = "block";
-    console.log("Calling loadListings after save"); // Debug log
+    console.log("Calling loadListings after save");
     loadListings();
   } catch (err) {
     formMessage.textContent = "Error: " + err.message;
@@ -188,33 +205,48 @@ async function saveListing(e) {
   }
 }
 
-function editListing(id) {
-  const listings = JSON.parse(localStorage.getItem("listings") || "[]");
-  const listing = listings.find(l => l.id === id);
-  if (!listing) return;
+async function editListing(id) {
+  try {
+    const docRef = doc(db, "listings", id);
+    const docSnap = await getDoc(docRef);
 
-  document.getElementById("listingId").value = listing.id;
-  document.getElementById("title").value = listing.title;
-  document.getElementById("description").value = listing.description;
-  document.getElementById("price").value = listing.price;
-  document.getElementById("size").value = listing.size;
-  document.getElementById("location").value = listing.location;
-  document.getElementById("images").value = ""; // Reset file input
-  formMessage.style.display = "none";
+    if (docSnap.exists()) {
+      const listing = docSnap.data();
+
+      document.getElementById("listingId").value = id;
+      document.getElementById("title").value = listing.title;
+      document.getElementById("description").value = listing.description;
+      document.getElementById("price").value = listing.price;
+      document.getElementById("size").value = listing.size;
+      document.getElementById("listingLocation").value = listing.location;
+      document.getElementById("images").value = ""; // Reset file input
+      formMessage.style.display = "none";
+    } else {
+      alert("Listing not found!");
+    }
+  } catch (err) {
+    console.error("Error loading listing:", err.message);
+  }
 }
 
-function deleteListing(id) {
+async function deleteListing(id) {
   if (!confirm("Are you sure you want to delete this listing?")) return;
 
-  const listings = JSON.parse(localStorage.getItem("listings") || "[]");
-  const updatedListings = listings.filter(l => l.id !== id);
-  localStorage.setItem("listings", JSON.stringify(updatedListings));
-  formMessage.textContent = "Listing deleted successfully!";
-  formMessage.classList.remove("error");
-  formMessage.classList.add("success");
-  formMessage.style.display = "block";
-  loadListings();
+  try {
+    await deleteDoc(doc(db, "listings", id));
+    formMessage.textContent = "Listing deleted successfully!";
+    formMessage.classList.remove("error");
+    formMessage.classList.add("success");
+    formMessage.style.display = "block";
+    loadListings();
+  } catch (err) {
+    formMessage.textContent = "Error deleting listing: " + err.message;
+    formMessage.classList.remove("success");
+    formMessage.classList.add("error");
+    formMessage.style.display = "block";
+  }
 }
+
 
 listingForm.addEventListener("submit", saveListing);
 clearFormBtn.addEventListener("click", () => {
