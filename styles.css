@@ -841,3 +841,140 @@ footer {
 .photo-wrapper img[src=""]:not([src*="placeholder"]) {
   content: url('https://via.placeholder.com/300?text=Image+Not+Found');
 }
+
+/* Listing Card Image Container */
+.listing-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 500px; /* Already set, keeping for reference */
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.listing-card .image-container {
+  width: 100%;
+  height: 50%; /* Top half of the card (250px since card height is 500px) */
+  overflow: hidden;
+  position: relative;
+}
+
+.listing-card .image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Crop image to fit container */
+  object-position: top; /* Focus on the top part of the image */
+  border-radius: 10px 10px 0 0; /* Rounded top corners only */
+}
+
+/* Ensure content below image fits in the bottom half */
+.listing-card h3 {
+  font-size: 1.2rem;
+  margin: 10px 1rem 5px;
+  color: #203354;
+}
+
+.listing-card p {
+  margin: 5px 1rem;
+  color: #555;
+  font-size: 1rem;
+}
+
+.listing-card .cta-button {
+  margin: 10px 1rem 1rem;
+  padding: 0.5rem 1rem;
+  background: #0077cc;
+  color: white;
+  border-radius: 6px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  align-self: center; /* Center the button */
+}
+
+/* Modal Carousel Image Container */
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 300px; /* Fixed height for carousel */
+  overflow: hidden;
+}
+
+.carousel-image-container {
+  width: 100%;
+  height: 100%; /* Match the carousel height */
+  position: relative;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Crop image to fit container */
+  object-position: top; /* Focus on the top part of the image */
+  border-radius: 8px;
+  display: none;
+}
+
+.carousel-image.active {
+  display: block;
+}
+
+/* Adjust modal layout for better spacing */
+.modal-body {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
+  position: relative;
+}
+
+.modal-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure modal content doesn’t overflow */
+.modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  max-width: 900px;
+  width: 90%;
+  margin: auto;
+  position: relative;
+}
+
+/* Responsive adjustments for modal */
+@media (max-width: 767px) {
+  .modal-body {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .carousel {
+    height: 200px; /* Smaller height on mobile */
+  }
+
+  .modal-buttons {
+    position: static;
+    margin-top: 15px;
+    justify-content: center;
+    width: 100%;
+  }
+}
