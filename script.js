@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function renderListings(listings) {
-    listingGrid.innerHTML = "";
+    listingGrid.innerHTML = ""; // Clear all cards, including static ones
     listings.forEach(listing => {
       console.log("Listing:", listing.title, "Images:", listing.images);
       const card = document.createElement("div");
@@ -88,7 +88,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const querySnapshot = await getDocs(collection(db, "listings"));
       const listings = [];
       querySnapshot.forEach((doc) => {
-        listings.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        console.log("Fetched listing:", doc.id, data);
+        listings.push({ id: doc.id, ...data });
       });
       allListings = listings;
       renderListings(allListings);
@@ -103,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
     listingCards.forEach(card => {
       const ctaButton = card.querySelector(".cta-button");
       if (!ctaButton) {
-        console.error("CTA button missing in card:", card);
+        console.error("CTA button missing in card:", card.outerHTML);
         return;
       }
       ctaButton.addEventListener("click", (e) => {
@@ -124,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
             images = ["https://placehold.co/600x400?text=No+Image"];
           }
         } catch (error) {
-          console.error("Error loading images:", error);
+          console.error("Error parsing images:", error);
           images = ["https://placehold.co/600x400?text=Image+Error"];
         }
 
