@@ -180,8 +180,6 @@ async function saveListing(e) {
       createdAt: Date.now()
     };
 
-    let imageUrls = [];
-
 if (isEditing) {
   // Use the existing ID when editing
   imageUrls = await uploadImages(imageFiles, listingIdInput);
