@@ -166,59 +166,45 @@ async function saveListing(e) {
 
   try {
     let imageUrls = [];
-    if (imageFiles.length > 0) {
-      imageUrls = await uploadImages(imageFiles, listingId);
+    if (isEditing) {
+      // Editing an existing listing
+      if (imageFiles.length > 0) {
+        imageUrls = await uploadImages(imageFiles, listingIdInput);
+      }
+      const docRef = doc(db, "listings", listingIdInput);
+      await updateDoc(docRef, {
+        title,
+        description,
+        price,
+        size,
+        location,
+        images: imageUrls,
+        updatedAt: Date.now()
+      });
+      formMessage.textContent = "Listing updated successfully!";
+    } else {
+      // Adding a new listing
+      const tempDocRef = await addDoc(collection(db, "listings"), {
+        title,
+        description,
+        price,
+        size,
+        location,
+        images: [],
+        createdAt: Date.now()
+      });
+      if (imageFiles.length > 0) {
+        imageUrls = await uploadImages(imageFiles, tempDocRef.id);
+        await updateDoc(tempDocRef, { images: imageUrls });
+      }
+      formMessage.textContent = "Listing added successfully!";
     }
-
-    const listingData = {
-      title,
-      description,
-      price,
-      size,
-      location,
-      images: imageUrls,
-      createdAt: Date.now()
-    };
-
-if (isEditing) {
-  // Use the existing ID when editing
-  imageUrls = await uploadImages(imageFiles, listingIdInput);
-} else {
-  // Temporarily add listing without images to get an ID
-  const tempDocRef = await addDoc(collection(db, "listings"), {
-    title,
-    description,
-    price,
-    size,
-    location,
-    images: [],
-    createdAt: Date.now()
-  });
-
-  // Upload images using the new ID
-  imageUrls = await uploadImages(imageFiles, tempDocRef.id);
-
-  // Update the listing with the uploaded image URLs
-  await updateDoc(tempDocRef, { images: imageUrls });
-  
-  formMessage.textContent = "Listing added successfully!";
-  listingForm.reset();
-  document.getElementById("listingId").value = "";
-  formMessage.classList.remove("error");
-  formMessage.classList.add("success");
-  formMessage.style.display = "block";
-  loadListings();
-  return; // Exit early so we don't run the next block
-}
-
-
 
     listingForm.reset();
     document.getElementById("listingId").value = "";
     formMessage.classList.remove("error");
     formMessage.classList.add("success");
     formMessage.style.display = "block";
-    console.log("Calling loadListings after save");
     loadListings();
   } catch (err) {
     formMessage.textContent = "Error: " + err.message;
@@ -269,7 +255,6 @@ async function deleteListing(id) {
     formMessage.style.display = "block";
   }
 }
-
 
 listingForm.addEventListener("submit", saveListing);
 clearFormBtn.addEventListener("click", () => {
