@@ -1,15 +1,25 @@
-import { onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-onSnapshot(collection(db, "listings"), (querySnapshot) => {
-  const listings = [];
-  querySnapshot.forEach((doc) => {
-    listings.push({ id: doc.id, ...doc.data() });
-  });
-  allListings = listings;
-  // rebuild listings display
-  renderListings();
-});
+const firebaseConfig = {
+  apiKey: "AIzaSyAuoq02wVr0d93hXnLJar4DgJ_Rt1BjZMI",
+  authDomain: "gateway-to-vibrant-residences.firebaseapp.com",
+  projectId: "gateway-to-vibrant-residences",
+  storageBucket: "gateway-to-vibrant-residences.appspot.com",
+  messagingSenderId: "989578450972",
+  appId: "1:989578450972:web:2cbfb0bfa0dd01c26c67d9",
+  measurementId: "G-RP061WSZGN"
+};
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 let allListings = []; // Global variable to store loaded listings
 
@@ -23,6 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById("listingModal");
   const modalTitle = modal.querySelector(".modal-title");
   const modalDescription = modal.querySelector(".modal-description");
+  const modalLocation = modal.querySelector(".modal-location");
+  const modalSize = modal.querySelector(".modal-size");
+  const modalPrice = modal.querySelector(".modal-price");
   const carousel = modal.querySelector(".carousel");
   const closeButton = modal.querySelector(".close-button");
   const listingGrid = document.querySelector(".listing-grid");
@@ -32,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const sizeFilter = document.getElementById("sizeFilter");
 
   // Check if modal elements exist
-  if (!modal || !modalTitle || !modalDescription || !carousel || !closeButton) {
+  if (!modal || !modalTitle || !modalDescription || !modalLocation || !modalSize || !modalPrice || !carousel || !closeButton) {
     console.error("Modal elements missing!");
     return;
   }
@@ -47,77 +60,54 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  function addCardEventListeners() {
+  // Render listings to the UI
+  function renderListings(listings) {
+    listingGrid.innerHTML = ""; // Clear existing cards
 
-      console.log("Modal opened with", images.length, "images");
-
-      const prevButton = modal.querySelector(".carousel-prev");
-      const nextButton = modal.querySelector(".carousel-next");
-      let currentIndex = 0;
-
-      function updateCarousel() {
-        const imgs = carousel.querySelectorAll(".carousel-image");
-        imgs.forEach((img, i) => {
-          img.style.display = i === currentIndex ? "block" : "none";
-        });
-        console.log("Carousel at image:", currentIndex);
-      }
-
-      prevButton.addEventListener("click", () => {
-        currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
-        updateCarousel();
-      });
-
-      nextButton.addEventListener("click", () => {
-        currentIndex = (currentIndex + 1) % images.length;
-        updateCarousel();
-      });
-
-      updateCarousel(); // Show first image
+    listings.forEach(listing => {
+      const card = document.createElement("div");
+      card.className = "listing-card";
+      card.dataset.title = listing.title;
+      card.dataset.description = listing.description;
+      card.dataset.location = listing.location;
+      card.dataset.price = listing.price;
+      card.dataset.size = listing.size;
+      card.dataset.images = JSON.stringify(listing.images || []);
+      card.innerHTML = `
+        <img src="${listing.images?.[0] || "https://via.placeholder.com/300x200?text=No+Image"}" alt="${listing.title}" />
+        <h3>${listing.title}</h3>
+        <p>₱${parseInt(listing.price).toLocaleString()} • ${listing.size} sqm</p>
+        <a href="#" class="cta-button">View Details</a>
+      `;
+      listingGrid.appendChild(card);
     });
-  });
-}
 
-  // Load listings from localStorage
+    console.log("Rendered", listings.length, "listings");
+    updateLocationFilterOptions(listings);
+    applyFilters();
+    addCardEventListeners(); // Add event listeners to new cards
+  }
+
+  // Load listings from Firestore
   async function loadListings() {
-  const querySnapshot = await getDocs(collection(db, "listings"));
-  const listings = [];
+    try {
+      const querySnapshot = await getDocs(collection(db, "listings"));
+      const listings = [];
 
-  querySnapshot.forEach((doc) => {
-    listings.push({ id: doc.id, ...doc.data() });
-  });
+      querySnapshot.forEach((doc) => {
+        listings.push({ id: doc.id, ...doc.data() });
+      });
 
-  allListings = listings; // Store to global for reuse
-  listingGrid.innerHTML = ""; // Clear existing cards
+      allListings = listings; // Store to global for reuse
+      renderListings(allListings); // Render the listings
+    } catch (err) {
+      console.error("Error loading listings:", err.message);
+    }
+  }
 
-  listings.forEach(listing => {
-    const card = document.createElement("div");
-    card.className = "listing-card";
-    card.dataset.title = listing.title;
-    card.dataset.description = listing.description;
-    card.dataset.location = listing.location;
-    card.dataset.price = listing.price;
-    card.dataset.size = listing.size;
-    card.dataset.images = JSON.stringify(listing.images || []);
-    card.innerHTML = `
-      <img src="${listing.images?.[0] || "https://via.placeholder.com/300x200?text=No+Image"}" alt="${listing.title}" />
-      <h3>${listing.title}</h3>
-      <p>₱${parseInt(listing.price).toLocaleString()} • ${listing.size} sqm</p>
-      <a href="#" class="cta-button">View Details</a>
-    `;
-    listingGrid.appendChild(card);
-  });
-
-  updateLocationFilterOptions(allListings);
-  applyFilters();
-  addCardEventListeners(); // Add event listeners to new cards
-}
-
-
-    // Add click events to "View Details" buttons
+  // Add click events to "View Details" buttons
+  function addCardEventListeners() {
     const listingCards = document.querySelectorAll(".listing-card");
-    console.log("Loaded", listingCards.length, "listings");
-
     listingCards.forEach(card => {
       const ctaButton = card.querySelector(".cta-button");
       if (!ctaButton) {
@@ -130,14 +120,9 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "flex";
         modalTitle.textContent = card.dataset.title || "Untitled";
         modalDescription.textContent = card.dataset.description || "No description available";
-        // Step 3: Set location, size, and price in modal
-        const modalLocation = modal.querySelector(".modal-location");
-        const modalSize = modal.querySelector(".modal-size");
-        const modalPrice = modal.querySelector(".modal-price");
-
-        if (modalLocation) modalLocation.textContent = card.dataset.location || "N/A";
-        if (modalSize) modalSize.textContent = card.dataset.size || "N/A";
-        if (modalPrice) modalPrice.textContent = parseInt(card.dataset.price).toLocaleString() || "N/A";
+        modalLocation.textContent = card.dataset.location || "N/A";
+        modalSize.textContent = card.dataset.size || "N/A";
+        modalPrice.textContent = parseInt(card.dataset.price).toLocaleString() || "N/A";
 
         carousel.innerHTML = "";
 
@@ -188,37 +173,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     });
-
-    // Update filters
-    applyFilters();
   }
 
-  // Watch for localStorage changes (e.g., admin updates)
-  window.addEventListener("storage", (e) => {
-    if (e.key === "listings") {
-      console.log("Listings updated, refreshing...");
-      loadListings();
-    }
-  });
-
-  // Close modal
-  closeButton.addEventListener("click", () => {
-    modal.style.display = "none";
-    console.log("Modal closed");
-  });
-
-  window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-      console.log("Modal closed by clicking outside");
-    }
-  });
-
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.style.display === "flex") {
-      modal.style.display = "none";
-      console.log("Modal closed with Escape key");
-    }
+  // Real-time listener for Firestore changes
+  onSnapshot(collection(db, "listings"), (querySnapshot) => {
+    const listings = [];
+    querySnapshot.forEach((doc) => {
+      listings.push({ id: doc.id, ...doc.data() });
+    });
+    allListings = listings;
+    console.log("Real-time update: Loaded", listings.length, "listings");
+    renderListings(listings); // Directly render the updated listings
   });
 
   // Filter listings
@@ -257,6 +222,38 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("resultsCount").textContent = `${results} listing(s) found`;
   }
 
+  // Update location filter options
+  function updateLocationFilterOptions(listings) {
+    const locations = [...new Set(listings.map(l => l.location.trim()))].sort();
+    locationFilter.innerHTML = `<option value="">All Locations</option>`;
+    locations.forEach(loc => {
+      const opt = document.createElement("option");
+      opt.value = loc;
+      opt.textContent = loc;
+      locationFilter.appendChild(opt);
+    });
+  }
+
+  // Close modal
+  closeButton.addEventListener("click", () => {
+    modal.style.display = "none";
+    console.log("Modal closed");
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+      console.log("Modal closed by clicking outside");
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.style.display === "flex") {
+      modal.style.display = "none";
+      console.log("Modal closed with Escape key");
+    }
+  });
+
   // Clear filters
   document.getElementById("clearFilters").addEventListener("click", () => {
     searchInput.value = "";
@@ -282,19 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function updateLocationFilterOptions(listings) {
-  const locations = [...new Set(listings.map(l => l.location.trim()))].sort();
-  locationFilter.innerHTML = `<option value="">All Locations</option>`;
-  locations.forEach(loc => {
-    const opt = document.createElement("option");
-    opt.value = loc;
-    opt.textContent = loc;
-    locationFilter.appendChild(opt);
-  });
- }
-
   // Load listings on start
   loadListings();
 });
-
-
