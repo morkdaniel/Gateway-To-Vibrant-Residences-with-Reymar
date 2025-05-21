@@ -1,0 +1,843 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* === HEADER === */
+
+header {
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  background-color: rgba(255, 255, 255, 0.9); /* Optional: semi-transparent */
+  backdrop-filter: blur(8px); /* Optional: frosted glass effect */
+}
+
+.site-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #203354;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #ff914d;
+}
+
+.hamburger {
+  display: none;
+  font-size: 1.8rem;
+  color: white;
+  cursor: pointer;
+}
+
+.hamburger:hover {
+  color: #ff6a00;
+}
+
+section {
+  scroll-margin-top: 80px; /* adjust based on header height */
+}
+
+.section-divider {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 20px auto;
+  width: 60%;
+}
+
+.active-tags .tag {
+  display: inline-block;
+  background-color: #eee;
+  border-radius: 20px;
+  padding: 5px 10px;
+  margin: 5px;
+  font-size: 0.9rem;
+}
+
+.results-count {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Contact & About Section Styling */
+.about-section,
+.contact-section {
+  padding: 4rem 1rem;
+}
+
+.about-section {
+  background-color: #203354;
+  text-align: center;
+}
+
+.contact-section {
+  background-color: #203354;
+  text-align: center;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-section h2,
+.contact-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.about-section p,
+.contact-section p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+.contact-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.contact-buttons a {
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.whatsapp {
+  background-color: #25d366;
+}
+
+.messenger {
+  background-color: #0084ff;
+}
+
+.email {
+  background-color: #ff0000;
+}
+
+.facebook {
+  background-color: #1877f2;
+}
+
+/* === MESSAGE SECTION (FIXED) === */
+.message-section {
+  background-color: #f5f5f5;
+  padding: 4rem 0;
+}
+
+.message-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f4f4f4;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.photo-wrapper {
+  flex: 1;
+  max-width: 300px;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.photo-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-wrapper img[src=""]:not([src*="placeholder"]) {
+  content: url('https://via.placeholder.com/300?text=Image+Not+Found');
+}
+
+.message-box {
+  flex: 2;
+  background-color: rgba(255, 255, 255, 0.75); /* transparent white */
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: -40px; /* creates slight overlap with image */
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.message-box h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #203354;
+}
+
+.message-box p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #444;
+}
+
+/* Mobile adjustments for message section */
+@media (max-width: 768px) {
+  .message-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .photo-wrapper {
+    width: 100%;
+    max-width: 250px;
+    height: 250px;
+    margin: 0 auto 1rem;
+  }
+  
+  .message-box {
+    width: 100%;
+  }
+}
+
+/* === HERO SECTION === */
+.hero {
+  position: relative;
+  background-image: url('https://wallpapercave.com/wp/wp2931974.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 100px 20px;
+  text-align: center;
+  color: white;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px; /* or any other value */
+  margin: 0 auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 0px;
+}
+
+.cta-button {
+  display: inline-block;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 12px 24px;
+  background-color: #ff914d;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.cta-button:hover {
+  background-color: #ff6a00;
+}
+
+/* === CONDO LISTINGS === */
+
+.image-group {
+  height: 60%;
+}
+
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-bottom: 2px solid #eee;
+}
+
+.thumbnail-row {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f8f8f8;
+  height: 25%;
+  overflow: hidden;
+}
+
+.thumbnail-row img {
+  width: calc(33.33% - 3px);
+  object-fit: cover;
+  border-radius: 6px;
+  height: 100%;
+}
+
+.listings {
+  padding: 60px 20px 60px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.listings h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+  color: #203354;
+}
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.listing-card {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.listing-card:hover {
+  transform: translateY(-5px);
+}
+
+.listing-card img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.listing-card h3, .listing-card p {
+  margin: 0.5rem 1rem 0 1rem;
+}
+
+.listing-card .cta-button {
+  margin: 0.5rem 1rem 1rem;
+  padding: 0.5rem 1rem;
+  display: inline-block;
+  background: #0077cc;
+  color: white;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* === MODAL === */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: white;         /* White background */
+  border-radius: 12px;             /* Rounded corners */
+  padding: 1.5rem;                 /* Inner spacing */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Soft shadow */
+  max-width: 900px;
+  width: 90%;
+  margin: auto;
+  position: relative;             /* Needed for button positioning */
+}
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  z-index: 10;
+}
+
+.close-button:hover {
+  color: #ff6a00;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
+  position: relative;
+}
+
+.modal-left,
+.modal-right {
+  flex: 1;
+}
+
+.modal-images {
+  position: relative;
+  width: 100%;
+  height: auto;
+  text-align: center;
+}
+
+.modal-body h2 {
+  color: #203354;
+  margin-bottom: 15px;
+}
+
+.modal-body p {
+  color: #555;
+}
+
+.modal-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.modal-description {
+  margin-bottom: 20px;
+}
+
+
+/* Bottom fixed button row */
+.modal-info p {
+  font-size: 1rem;
+  margin: 6px 0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-info i {
+  color: #555;
+  min-width: 20px;
+}/*  */
+
+.modal-buttons {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.modal-inquire-buttons {
+  position: fixed;
+  z-index: 9999;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.inquire-button {
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: opacity 0.3s ease;
+}
+
+.whatsapp {
+  background-color: #25D366;
+}
+
+.whatsapp:hover {
+  background-color: #1ebe5a;
+}
+
+.messenger {
+  background-color: #0084ff;
+}
+
+.messenger:hover {
+  background-color: #006fe0;
+}
+
+/* Small screen adjustments */
+@media (max-width: 500px) {
+  .inquire-button {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .modal-body {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .modal-buttons {
+    position: static;
+    margin-top: 15px;
+    justify-content: center;
+    width: 100%;
+  }
+  .modal-buttons .inquire-button {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+  .modal-content {
+    padding-bottom: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    flex-direction: row;
+  }
+  .modal-buttons {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+
+/* === SMOOTH SCROLL === */
+html {
+  scroll-behavior: smooth;
+}
+
+/* === RESPONSIVE NAVIGATION === */
+@media (max-width: 768px) {
+  .site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #203354;
+    position: relative;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .hamburger {
+    display: block;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .nav-links {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #203354;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .nav-links a {
+    padding: 12px 0;
+    display: block;
+    width: 100%;
+    color: white;
+  }
+
+  .nav-links.show {
+    max-height: 500px; /* make sure it fits all links */
+    padding: 10px 20px;
+  }
+}
+
+/* === ANIMATION === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === SEARCH FILTER === */
+.search-filter .container {
+  max-width: 100%;
+  padding: 24px;
+  background-color: #203354;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Search input */
+#searchInput {
+  flex: 1 1 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #ffffff;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  margin-bottom: 10px;
+}
+
+#searchInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.25);
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.filter-tags select {
+  width: 180px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #ffffff;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+
+.filter-tags select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.25);
+}
+
+@media (max-width: 600px) {
+  .search-filter .container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #searchInput {
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .filter-tags {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-tags select {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .clear-button {
+    width: 100%;
+    max-width: 300px;
+    align-self: center;
+  }
+}
+
+.clear-button {
+  background-color: #ff914d;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.clear-button:hover {
+  background-color: #ff6a00;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #eee;
+  color: #333;
+  padding: 4px 8px;
+  margin: 2px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+@media (max-width: 600px) {
+  .contact-section {
+    padding: 2rem 1rem;
+  }
+
+  .contact-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .contact-buttons a {
+    width: 100%;
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .about-section h2,
+  .contact-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .about-section p,
+  .contact-section p {
+    font-size: 1rem;
+  }
+}
+
+footer {
+  background-color: #203354;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+/* Carousel Styles */
+.carousel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.carousel-image {
+  width: 100%;
+  border-radius: 8px;
+  display: none;
+}
+
+.carousel-image.active {
+  display: block;
+}
+
+
+.carousel-prev,
+.carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.carousel-prev {
+  left: 10px;
+}
+
+.carousel-next {
+  right: 10px;
+}
+
+.carousel-prev:hover,
+.carousel-next:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.carousel.loading::before {
+  content: "Loading images...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Ensure modal-content focus is visible */
+.modal-content:focus {
+  outline: 3px solid #ff914d;
+}
+
+/* Footer and Admin Link */
+footer {
+  background-color: #203354;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+.hidden-admin-link {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  color: #ff914d;
+  text-decoration: none;
+  font-weight: bold;
+  opacity: 0;
+  height: 40px;
+}
+
+.hidden-admin-link:hover {
+  opacity: 1;
+}
+
+/* Fix for message section image fallback */
+.photo-wrapper img[src=""]:not([src*="placeholder"]) {
+  content: url('https://via.placeholder.com/300?text=Image+Not+Found');
+}
