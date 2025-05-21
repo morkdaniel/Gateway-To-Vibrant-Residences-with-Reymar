@@ -180,14 +180,39 @@ async function saveListing(e) {
       createdAt: Date.now()
     };
 
-    if (isEditing) {
-     const docRef = doc(db, "listings", listingIdInput);
-     await updateDoc(docRef, listingData);
-     formMessage.textContent = "Listing updated successfully!";
-   } else {
-     const docRef = await addDoc(collection(db, "listings"), listingData);
-     formMessage.textContent = "Listing added successfully!";
-   }
+    let imageUrls = [];
+
+if (isEditing) {
+  // Use the existing ID when editing
+  imageUrls = await uploadImages(imageFiles, listingIdInput);
+} else {
+  // Temporarily add listing without images to get an ID
+  const tempDocRef = await addDoc(collection(db, "listings"), {
+    title,
+    description,
+    price,
+    size,
+    location,
+    images: [],
+    createdAt: Date.now()
+  });
+
+  // Upload images using the new ID
+  imageUrls = await uploadImages(imageFiles, tempDocRef.id);
+
+  // Update the listing with the uploaded image URLs
+  await updateDoc(tempDocRef, { images: imageUrls });
+  
+  formMessage.textContent = "Listing added successfully!";
+  listingForm.reset();
+  document.getElementById("listingId").value = "";
+  formMessage.classList.remove("error");
+  formMessage.classList.add("success");
+  formMessage.style.display = "block";
+  loadListings();
+  return; // Exit early so we don't run the next block
+}
+
 
 
     listingForm.reset();
