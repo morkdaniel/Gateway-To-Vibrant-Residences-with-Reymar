@@ -155,7 +155,7 @@ async function saveListing(e) {
   formMessage.style.display = "none";
 
   const listingIdInput = document.getElementById("listingId").value;
-  const isEditing = listingIdInput !==;
+  const isEditing = listingIdInput !== "";
 
   const title = document.getElementById("title").value;
   const description = document.getElementById("description").value;
