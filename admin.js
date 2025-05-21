@@ -155,8 +155,7 @@ async function saveListing(e) {
   formMessage.style.display = "none";
 
   const listingIdInput = document.getElementById("listingId").value;
-  const isEditing = listingIdInput !== "";
-  const listingId = listingIdInput || Date.now().toString();
+  const isEditing = listingIdInput !==;
 
   const title = document.getElementById("title").value;
   const description = document.getElementById("description").value;
@@ -182,13 +181,14 @@ async function saveListing(e) {
     };
 
     if (isEditing) {
-      const docRef = doc(db, "listings", listingId);
-      await updateDoc(docRef, listingData);
-      formMessage.textContent = "Listing updated successfully!";
-    } else {
-      const docRef = await addDoc(collection(db, "listings"), listingData);
-      formMessage.textContent = "Listing added successfully!";
-    }
+     const docRef = doc(db, "listings", listingIdInput);
+     await updateDoc(docRef, listingData);
+     formMessage.textContent = "Listing updated successfully!";
+   } else {
+     const docRef = await addDoc(collection(db, "listings"), listingData);
+     formMessage.textContent = "Listing added successfully!";
+   }
+
 
     listingForm.reset();
     document.getElementById("listingId").value = "";
