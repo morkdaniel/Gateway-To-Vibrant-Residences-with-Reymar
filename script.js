@@ -1,3 +1,16 @@
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+onSnapshot(collection(db, "listings"), (querySnapshot) => {
+  const listings = [];
+  querySnapshot.forEach((doc) => {
+    listings.push({ id: doc.id, ...doc.data() });
+  });
+  allListings = listings;
+  // rebuild listings display
+  renderListings();
+});
+
+
 let allListings = []; // Global variable to store loaded listings
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -34,29 +47,72 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Load listings from localStorage
-  function loadListings() {
-  const listings = JSON.parse(localStorage.getItem("listings") || "[]");
-  allListings = listings; // Store to global for reuse
-    listingGrid.innerHTML = ""; // Clear existing cards
-    listings.forEach(listing => {
-      const card = document.createElement("div");
-      card.className = "listing-card";
-      card.dataset.title = listing.title;
-      card.dataset.description = listing.description;
-      card.dataset.location = listing.location;
-      card.dataset.price = listing.price;
-      card.dataset.size = listing.size;
-      card.dataset.images = JSON.stringify(listing.images || []);
-      card.innerHTML = `
-        <img src="${listing.images[0] || "https://via.placeholder.com/300x200?text=No+Image"}" alt="${listing.title}" />
-        <h3>${listing.title}</h3>
-        <p>₱${listing.price.toLocaleString()} • ${listing.size} sqm</p>
-        <a href="#" class="cta-button">View Details</a>
-      `;
-      listingGrid.appendChild(card);
-        updateLocationFilterOptions(allListings); // Move this here
+  function addCardEventListeners() {
+
+      console.log("Modal opened with", images.length, "images");
+
+      const prevButton = modal.querySelector(".carousel-prev");
+      const nextButton = modal.querySelector(".carousel-next");
+      let currentIndex = 0;
+
+      function updateCarousel() {
+        const imgs = carousel.querySelectorAll(".carousel-image");
+        imgs.forEach((img, i) => {
+          img.style.display = i === currentIndex ? "block" : "none";
+        });
+        console.log("Carousel at image:", currentIndex);
+      }
+
+      prevButton.addEventListener("click", () => {
+        currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+        updateCarousel();
+      });
+
+      nextButton.addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % images.length;
+        updateCarousel();
+      });
+
+      updateCarousel(); // Show first image
     });
+  });
+}
+
+  // Load listings from localStorage
+  async function loadListings() {
+  const querySnapshot = await getDocs(collection(db, "listings"));
+  const listings = [];
+
+  querySnapshot.forEach((doc) => {
+    listings.push({ id: doc.id, ...doc.data() });
+  });
+
+  allListings = listings; // Store to global for reuse
+  listingGrid.innerHTML = ""; // Clear existing cards
+
+  listings.forEach(listing => {
+    const card = document.createElement("div");
+    card.className = "listing-card";
+    card.dataset.title = listing.title;
+    card.dataset.description = listing.description;
+    card.dataset.location = listing.location;
+    card.dataset.price = listing.price;
+    card.dataset.size = listing.size;
+    card.dataset.images = JSON.stringify(listing.images || []);
+    card.innerHTML = `
+      <img src="${listing.images?.[0] || "https://via.placeholder.com/300x200?text=No+Image"}" alt="${listing.title}" />
+      <h3>${listing.title}</h3>
+      <p>₱${parseInt(listing.price).toLocaleString()} • ${listing.size} sqm</p>
+      <a href="#" class="cta-button">View Details</a>
+    `;
+    listingGrid.appendChild(card);
+  });
+
+  updateLocationFilterOptions(allListings);
+  applyFilters();
+  addCardEventListeners(); // Add event listeners to new cards
+}
+
 
     // Add click events to "View Details" buttons
     const listingCards = document.querySelectorAll(".listing-card");
